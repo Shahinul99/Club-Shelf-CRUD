@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-export default function ProductCard({ product, onDelete }) {
+export default function ProductCard({ product, onDelete, onAddToCart, readOnly = false }) {
   const { _id, name, price, category, stock, image, description } = product;
 
   return (
@@ -22,13 +22,24 @@ export default function ProductCard({ product, onDelete }) {
             {Number(stock) > 0 ? `${stock} in stock` : 'Out of stock'}
           </span>
         </div>
-        <div className="card-actions mt-2 justify-end">
-          <Link to={`/update/${_id}`} className="btn btn-sm btn-outline btn-primary">
-            Edit
-          </Link>
-          <button onClick={() => onDelete(_id)} className="btn btn-sm btn-error">
-            Delete
+        <div className="card-actions mt-2 justify-between">
+          <button
+            className="btn btn-sm btn-primary"
+            disabled={Number(stock) <= 0}
+            onClick={() => onAddToCart(product)}
+          >
+            Add to cart
           </button>
+          {!readOnly && (
+            <div className="flex gap-2">
+            <Link to={`/update/${_id}`} className="btn btn-sm btn-outline btn-primary">
+              Edit
+            </Link>
+            <button onClick={() => onDelete(_id)} className="btn btn-sm btn-error">
+              Delete
+            </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

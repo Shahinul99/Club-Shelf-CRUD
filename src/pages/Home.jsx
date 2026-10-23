@@ -3,23 +3,37 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { API } from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
+import demoProductsData from '../../../server/seed-data.json';
+import { useCart } from '../context/CartContext.jsx';
+
+const demoProducts = demoProductsData.map((product, index) => ({
+  ...product,
+  _id: `demo-${index + 1}`,
+}));
 
 export default function Home() {
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiUnavailable, setApiUnavailable] = useState(false);
 
   // READ
   useEffect(() => {
     fetch(`${API}/products`)
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch(() =>
-        Swal.fire({
-          icon: 'error',
-          title: 'Could not load products',
-          text: 'Check that the server is running and try again.',
-        })
-      )
+      .then((res) => {
+        if (!res.ok) throw new Error('Product request failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (!Array.isArray(data)) throw new Error('Invalid product response');
+        const productsByName = new Map(demoProducts.map((product) => [product.name.toLowerCase(), product]));
+        data.forEach((product) => productsByName.set(product.name.toLowerCase(), product));
+        setProducts([...productsByName.values()]);
+      })
+      .catch(() => {
+        setProducts(demoProducts);
+        setApiUnavailable(true);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -70,10 +84,28 @@ export default function Home() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold">Products ({products.length})</h1>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Browse products</h1>
+          <p className="mt-1 opacity-70">Demo products stay in the catalog alongside products you add.</p>
+        </div>
+        <Link to="/add" className="btn btn-primary">Add a product</Link>
+      </div>
+      {apiUnavailable && (
+        <p className="mb-4 rounded-lg bg-warning/20 p-3 text-sm">
+          The server is unavailable. Demo products are shown; adding, editing, and deleting products requires the server.
+        </p>
+      )}
+      <h2 className="mb-4 text-xl font-semibold">All items ({products.length})</h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((p) => (
-          <ProductCard key={p._id} product={p} onDelete={handleDelete} />
+          <ProductCard
+            key={p._id}
+            product={p}
+            onDelete={handleDelete}
+            onAddToCart={addToCart}
+            readOnly={String(p._id).startsWith('demo-')}
+          />
         ))}
       </div>
     </>
