@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: clubstore --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "clubstore";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #f3f5f9;
+  --color-base-300: #dfe4ee;
+  --color-base-content: #14213d;
+  --color-primary: #0b4fb3;
+  --color-primary-content: #ffffff;
+  --color-secondary: #ffc220;
+  --color-secondary-content: #14213d;
+  --color-accent: #e4572e;
+  --color-accent-content: #ffffff;
+  --color-neutral: #14213d;
+  --color-neutral-content: #ffffff;
+  --color-info: #2f80ed;
+  --color-success: #1f9d55;
+  --color-warning: #f2a900;
+  --color-error: #d64545;
+  --radius-box: 0.75rem;
+  --radius-field: 0.5rem;
+}
